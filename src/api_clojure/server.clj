@@ -1,9 +1,7 @@
-(ns api-clojure.server
+(ns api-clojure.core
     (:require   [io.pedestal.http.route :as route]
-                [io.pedestal.http :as http]))
-
-(defn -main [& args]
-    (println "Server started"))
+                [io.pedestal.http :as http]
+                [io.pedestal.test :as test]))
 
 (defn hello [request] {
     :status 200 
@@ -11,7 +9,7 @@
 
 (def routes (route/expand-routes
                 #{
-                    ["/hello" :get hello :route-name :main]
+                    ["/api" :get hello :route-name :api]
                 }))
   
 (def service-map {
@@ -20,4 +18,16 @@
     ::http/type     :jetty
     ::http/join?    false})
   
-(http/start (http/create-server service-map))
+(def server (atom nil))
+
+(defn start-server []
+    (reset! server (http/start (http/create-server service-map))))
+
+(defn -main [& args]
+    (println "Server started")
+    (start-server))
+
+;; (defn request-test [verb url] 
+;;     (test/response-for (::http/service-fn @server) verb url))
+
+;; (defn request-test :get "/api")
